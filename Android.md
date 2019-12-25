@@ -15,7 +15,7 @@
 5. Toast
 
 6. 控制UI界面方式
-    1. 使用xml布局文件(res/layout):setContentView(R.layout.main)
+    1. 使用xml布局文件(`res/layout`):`setContentView(R.layout.main)`
     2. 在代码中控制UI界面 FrameLayout  frameLayout=new FrameLayout(this); setContentView(frameLayout)
     3. xml和Java代码混合控制UI界面
     4. 开发自定义的view：所有的UI界面都是由`View`和`ViewGroup`及其子类构成
@@ -786,4 +786,20 @@
             }
         }
 
+    ```
+
+2. 记住用户名密码
+
+    ```Java
+        if (chk_name.isChecked() || chk_pass.isChecked()) {
+        SharedPreferences sp = this.getSharedPreferences("data", Context.MODE_PRIVATE);
+        Editor edit = sp.edit();
+        if (chk_name.isChecked()) {
+        edit.putString("username", username);
+        }
+        if (chk_pass.isChecked()) {
+        edit.putString("password", password);
+        }
+        edit.apply();
+        }
     ```
