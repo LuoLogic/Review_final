@@ -215,3 +215,62 @@
 
 7. `taglib`指令：用于提供类似xml中自定义新标记的功能，其基本语法如下:
    * <%@ taglib url="relative taglibURL" prefix="taglibPrefix" %>
+
+8. JSP异常
+   1. JspError:转换期错误
+   2. JspException：请求期异常，errorpage，iserrorpage
+
+9. JSP内置对象
+   1. `request`:getParameter(String name),setCharacterEncoding(String encoding)
+   2. `response`:sendRedirect(string location), get/setBufferSize
+   3. `out`:print()
+   4. `session`:getAttribute(String name)
+   5. `pageContext`
+   6. `application`:
+10. 属性保存范围
+    1. page：只在一个页面中保存属性、跳转之后无效
+    2. request：在一次请求中保存属性，服务器跳转之后依旧有效
+    3. session：在一次会话返回中有效，无论何种跳转都可以使用，但是新开的浏览器无法使用
+    4. application：在整个服务器上保存，所有用户都可以使用
+
+11. EL
+    1. `${表达式}`
+    2. 查找范围：pageScope，requestScope，sessionScope，applicationScope
+    3. map:{$map1.a},map1:${map1["a"]}
+    4. empty判断是否为null或空${empty param.name}
+
+12. jstl
+    1. 用于简化jsp当中java代码的书写，与el表达式可以结合使用
+    2. `<c:if test="${number%2!=0}">`
+
+        ```xml
+        <c:choose>
+            <c:when test="${number==1}">星期一</c:when>
+            <c:when test="${number==2}">星期二</c:when>
+            <c:when test="${number==3}">星期三</c:when>
+            <c:when test="${number==4}">星期四</c:when>
+
+            <c:otherwise>数字输入有误</c:otherwise>
+        </c:choose>
+
+        ```
+
+        ```xml
+        <c:forEach begin="1" end="10" var="i" step="1" varStatus="s">
+            ${i}<h3>${s.index}</h3><h4>${s.count}</h4><br>
+        </c:forEach>
+
+        <%
+            List list=new ArrayList();
+            list.add("aaa");
+            list.add("bbb");
+            list.add("ccc");
+
+            request.setAttribute("list",list);
+        %>
+
+        <c:forEach items="${list}" var="str" varStatus="s">
+            ${s.index}${s.count}${str}<br>
+        </c:forEach>
+
+        ```
