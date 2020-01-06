@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+		                http://www.springframework.org/schema/context 
+			            http://www.springframework.org/schema/context/spring-context.xsd" >
+ 
+    <!-- 在容器当中配置bean对象 ，使用反射技术
+    	id:是容器中创建的对象的名字，不能重复
+    	class:对象的类型，需要用全类名。
+    	当bean没有constructor-arg子元素时，此类必须有无参的构造函数
+    	init-method:配置bean的初始化方法
+    	destroy-method：配置bean销毁之前执行的方法
+    -->
+ 	<bean id="person1" class="nl1204.Person"/>
+ 		<bean id="person2" class="nl1204.Person" />
+
+ 	
+ 	<!-- 静态工厂方法配置 
+ 	     class：不再使用对象本身的类，而是使用工厂类的全名称
+ 	     factory-method：指定静态工厂方法
+ 	-->
+ 	<bean id="apple" class="nl1204.FruitFactory" 
+ 	  factory-method="getApple"	></bean>
+ 	<!-- 实例工厂方法配置
+ 	             需要配置一个工厂类的对象
+ 	     factory-bean:指定创建实例的工厂实例
+ 	     factory-method：指定实例工厂方法
+ 	 -->
+ 	 <bean id="factory" class="nl1204.FruitFactory" />
+ 	 <bean id="orange" factory-bean="factory"
+ 	  	 factory-method="getOrange"></bean>
+ 	  	 
+ 	 <!-- DI依赖注入
+ 	 	方法一：用属性方法来注入(Setter)
+ 	 	      在bean的类型中需要定义对应属性的setter方法
+ 	 	      name：属性名，大小写区分，value：指定属性对应的值
+ 	    --> 	 
+ 	 <bean id="banana" class="nl1204.Fruit">
+ 	    <property name="type" value="banana"/>
+         <property name="brand" value="dd"></property>
+ 	 </bean>
+ 	 
+ 	 <!-- DI依赖注入
+ 	 	方法二：通过构造函数注入
+ 	 	      在bean的类型中需要定义对应构造方法
+ 	 	  使用constructor-arg 子元素，通过index指定参数的位置，从0开始
+ 	 	  value：用于简单数据类型
+ 	 	  ref：复杂数据
+ 	    --> 	 
+ 	 
+ 	 <bean id="lemon" class="nl1204.Fruit">
+ 	 	<constructor-arg index ="0" value="柠檬精" />
+		 <constructor-arg index="1" value="kk"></constructor-arg>
+ 	 </bean>
+ 	 
+ 	 <bean id="saler" class="nl1204.Saler" >
+ 	 	<property name="name" value="挑担子的小贩"></property>
+ 	 	<property name="lemon" ref="lemon"></property>
+ 	 </bean>
+ 	 
+ 	 <!-- p命名空间，为了简化配置，可以使用P命名空间
+ 	      1：需要增加P命名空间的声明
+ 	      2：p:属性名：注入字面量（简单数据类型）的属性
+ 	      3：p:属性名-ref：注入复杂数据类型的属性
+ 	  -->
+ 	   <!-- 
+	 	自动装配：
+	 	 autowire属性来指定装配形式
+	 	 no:为默认值
+	 	 byName：按照属性名称自动装配：找不到什么都不做。
+	 	 byType：按照类型自动装配，找不到，什么都不做，找到多个就抛出异常
+	  -->
+	 <bean id="saler1" class="nl1204.Saler" p:name="骑车的小贩" autowire="byName" />
+	
+	 <!-- 
+	 	bean的生命周期：
+		 	singleton：默认，单例，bean的创建是在容器初始化
+		 	prototype:原型模式，bean对象的创建是在访问时
+		指定方法：使用scope属性来指定
+	  -->
+	  
+	 <bean id="personx" class="nl1204.Person" scope="prototype"></bean>
+ 	 
+</beans>

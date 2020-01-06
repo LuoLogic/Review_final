@@ -1,5 +1,16 @@
 # javaEE复习
 
+## 可能的简答
+
+1. IOC最大好处，实现方式
+   1. 解决了传统软件开发中组件耦合性高，维护困难的问题，更改组件依赖关系可以通过修改相关的xml配置文件或注解实现，而无需修改代码
+   2. 接口注入，设值注入，构造器注入
+
+2. MVC3个组成部分各自任务
+   1. 模型层实现系统中的业务逻辑
+   2. 视图层则用于与用户的交互，通常用JSP来实现
+   3. 控制层则是模型层和视图层之间沟通的桥梁，它可以把用户的请求分派并选择恰当的视图来显示它 们，同时它也可以解释用户的输入并将其映射为模型层能够执行的操作。
+
 ## 第二至五章
 
 1. http默认端口：`80`
@@ -346,3 +357,113 @@
    3. 使用`method`属性
    4. ActionContext获取request，session，application
 
+## Spring
+
+1. Spring是一个bean的容器，spring用于管理bean,管理对象的生命周期、对象的组态、相依注入等，并可以控制对象的创建方式。
+
+2. 控制反转/依赖注入：对象的依赖关系是由容器来控制的，程序只负责接口的控制，控制权从代码到外部容器的转移
+
+3. 控制反转三种形式
+   1. 接口注入
+   2. 设值注入：直观明显
+   3. 构造器注入：设置注入顺序，符合高内聚
+
+        ```xml
+
+        <constructor-arg  index="0" value="波斯猫"></constructor-arg>
+        <constructor-arg  value="5" type="int"></constructor-arg>
+        ```
+
+4. Bean配置
+   1. bean实例化方式：反射
+   2. ApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml")
+   3. 属性
+      1. scope：表示Bean的默认作用域为`Singleton`,单实例模式
+      2. init-method：初始化方法
+      3. destroy-method:销毁方法
+      4. autowire：自动装配
+   4. 依赖注入
+      1. 属性注入
+         1. 引入其他Bean
+
+            ```xml
+            <bean id="department" class="com.spring4.model.Department"></bean>
+            <bean id="employee" class="com.spring4.model.Employee">
+                <property name="department" ref="department"></property>
+            </bean>
+
+            ```
+
+      2. 构造器注入
+      3. 工厂方法注入
+   5. 自动装配
+      1. `no`:默认不自动装配
+      2. `byName`：根据属性名自动装配。Spring 自动查找与属性名相同的id，如果找到，则自动注入，否则什么都不做。必须将目标bean的名称和属性名设置完全相同
+      3. `byType`：根据属性的类型自动装配。Spring 自动查找与属性类型相同的Bean，如果刚好找到唯一的那个，则自动注入；如果找到多个与属性类型相同的Bean，则抛出异常；如果没找到，就什么也不做。
+      4. `constructor`
+
+        ```xml
+        <bean id="person" class="com.day3.Person" p:name="黄萧峰" p:age="20" autowire ="byName"></bean>
+
+        ```
+
+   6. Bean之间的关系：`继承`，`依赖`
+
+5. IOC容器中Bean的生命周期
+   1. 通过构造器或工厂方法创建bean的实例
+   2. 为bean的属性设置值和对其他bean的引用
+   3. 调用bean的初始化方法
+   4. Bean初始化完，可以使用
+   5. 当容器关闭时，调用bean的销毁方法
+
+6. 特定组件
+   1. `@Component`：基本注解，标志一个受Spring管理的组件
+   2. `@Repository`：标志持久层组件
+   3. `@Service`：标致服务层（业务层）组件
+   4. `@Controller`：标志表示层组件
+
+7. 在classpath扫面组件
+
+    ```xml
+        <!-- base-package:标记需要扫描的package
+        它下面的子package也会被扫描到
+        include-filter子元素,用来配置当前base-package下面那些符合规则的类或接口需要实例化 。
+                                    需要将component-san的默认属性use-default-filters值改成false。
+        exclude-filter子元素：排除掉符合规则的类或接口
+    -->
+    <!--
+    <context:component-scan base-package="nl1204" use-default-filters="false">
+    
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+    </context:component-scan>
+        -->
+        <context:component-scan base-package="nl1204" ></context:component-scan>
+
+        <aop:aspectj-autoproxy />
+    ```
+
+8. AOP：面向切面编程
+   1. 切面(Aspect)
+   2. 连接点(Joint Point)
+   3. 通知(Advice)
+   4. 切入点(Pointcut)
+   5. 引入(Introduction)
+   6. 目标对象(Target Object)
+   7. AOP代理
+
+9. 通知(Advice)
+   1. 环绕通知
+   2. 前置通知
+   3. 抛出异常后通知
+   4. 后置通知
+
+10. 通知注解
+    1. @Before("execution(* nl1204.comm..*.*(..))")
+    2. @After("execution(* nl1204.comm..*.*(..))")
+    3. @AfterReturning(value="execution(* nl1204.comm..*.*(..))",returning="result")
+    4. @AfterThrowing("execution(* nl1204.comm..*.*(..))")
+    5. Around,ProceedingJoinPoint
+
+11. JDK动态代理![1](img/jdkd1.png)![2](img/jdkd2.png)
+12. Aspectj![3](img/asj.png)
