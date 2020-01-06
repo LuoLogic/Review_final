@@ -274,3 +274,75 @@
         </c:forEach>
 
         ```
+
+## Struts
+
+1. MVC;mvc思想是将系统的各个组件进行分类，不同的组件扮演不同的角色。然后将系统中的组件分隔到不同的层中，这些组件将被限制在其所在层内。同层中的组件应该保持起内聚性，且大致处于同一抽象级别，而各层之间则以松散耦合的方式组合在一起，从而促进了良好的封装性
+2. MVC将一个应用的输入、处理和输出流程按照Model、View和Controller三部分进行分离，这样一个应用可以划分成模型层、视图层和控制层。三层之间以最少的耦合来协同工作从而提高了应用系统的可扩展性和可维护性
+
+3. Struts的核心是过滤器（`FilterDisptcher`）
+
+4. org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter
+
+5. web.xml配置
+   1. 错误页：error-page
+   2. session-config
+
+    ```xml
+    <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+    <display-name>nl1120</display-name>
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    <filter>
+        <filter-name>struts</filter-name>
+        <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <!--/*.action时，所有请求action的路径后面必须加上.action后缀  -->
+        <filter-name>struts</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    </web-app>
+    ```
+
+6. struts.xml配置
+   1. result
+      1. name
+      2. type:默认为`dispatcher`,链接两个Action`chain`，重定向到另一个资源`redirect`,重定向到另一个Action`redirectAction`
+
+    ```xml
+    <struts>
+        <!-- 开启struts的开发模式，name值可以在default.properties文件中查找 -->
+        <constant name="struts.devMode" value="true"></constant>
+        <!-- action的访问路径是其package的访问路径 + action的name
+        package的namespace=”/“  action的name=test   访问路径： ~pj虚拟目录/test
+        package的namespace=”/ax“  action的name=test  访问路径:~pj虚拟目录/ax/test
+            从action到success.jsp默认的跳转方式：转发（服务器端进行）
+        -->
+        <package name="base" namespace="/ax" extends="struts-default">
+        <!--  action的name不需要加上action后缀
+            class指定用于处理此url的Action，全类名
+            method:配置该请求的处理方法，默认为execute（不配置时默认选项）
+        -->
+            <action name="test"  class="nl1120.TestAction" method="execute">
+                <result name="success">/success.jsp</result>
+                <result name="usersuccess">/userSuccess.jsp</result>
+            </action>
+        </package>
+    </struts>
+    ```
+
+7. action的编写
+   1. 如何编写
+      1. 实现Action接口
+      2. 继承ActionSupport类
+   2. resultcode
+      1. NONE：表示当action正确执行完成后，并不转向到任一的视图
+      2. ERROR：表示当action执行失败后，转向到错误处理视图
+      3. INPUT：表示执行当前action时，对输入数据的视图传递过来的参数进行校验，而校验没有通过，将转向回输入数据的视图
+      4. LOGIN：表示执行当前逻辑需要用户登录，而用户没有登录，所以转向到登录视图
+
+   3. 使用`method`属性
+   4. ActionContext获取request，session，application
+
