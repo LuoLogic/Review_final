@@ -611,3 +611,6 @@
        3. 多对多
 
 15. HQL语法(见书p167)
+16. Query接口是专门的HQL查询接口
+17. QBC（Query By Criteria）检索是Hibernate的另一种对象检索方式。QBC检索主要由Criteria接口来完成，
+18. Criteria是一个完全面向对象，可扩展的条件查询API，通过它完全不需要考虑数据库底层如何实现，以及SQL语句如何编写，它是Hibernate框架的核心查询对象。![hi2](img/hi2.png)
