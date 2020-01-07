@@ -11,6 +11,11 @@
    2. 视图层则用于与用户的交互，通常用JSP来实现
    3. 控制层则是模型层和视图层之间沟通的桥梁，它可以把用户的请求分派并选择恰当的视图来显示它 们，同时它也可以解释用户的输入并将其映射为模型层能够执行的操作。
 
+3. 对象关系映射是一种数据持久化技术，其思想是把对象模型与关系数据库的表建立映射关系，开发人员可以把对数据库的操作转化为对JavaBean对象的操作，从而不需要在使用SQL语句操作数据库中的表，代之以直接操作JavaBean对象，就可以实现数据的存储，查询，更改和删除等操作
+4. (Hibernate)load和get区别：都是持久化对象方法
+   1. 使用load()方法，如果没有找到记录，就会抛出异常
+   2. 使用get()方法，如果没有找到记录，返回null
+
 ## 第二至五章
 
 1. http默认端口：`80`
@@ -467,3 +472,142 @@
 
 11. JDK动态代理![1](img/jdkd1.png)![2](img/jdkd2.png)
 12. Aspectj![3](img/asj.png)
+
+## Hibernate
+
+1. 持久化：将内存中的数据保存到磁盘等存储设备中
+2. 持久化对象:
+   1. 指已经存储到数据库或磁盘中的业务对象
+   2. 可以再创建它的程序的作用域之外保持其自身的状态
+
+3. 对象关系映射是一种数据持久化技术，其思想是把对象模型与关系数据库的表建立映射关系，开发人员可以把对数据库的操作转化为对JavaBean对象的操作，从而不需要在使用SQL语句操作数据库中的表，代之以直接操作JavaBean对象，就可以实现数据的存储，查询，更改和删除等操作
+4. 核心接口
+   1. Session
+   2. SessionFactory
+   3. Configuration
+   4. Transaction
+   5. Query/Criteria
+
+5. 示例代码
+
+    ```Java
+
+    try{
+        //创建SessionFactory实例
+        SessionFactory sf=new Configuration().configure().buildSessionFactory();
+        //创建Session实例
+        Session session=sf.openSession
+        Transaction tx=session.beginTransaction();
+        Book book = new Book();
+        book.setIsbn("12180001");
+        book.setName("结束19年");
+        book.setAuthor("无名氏");
+        //保存到数据库中
+        session.save(book);
+        tx.commit()
+        session.close();
+    }
+
+    ```
+
+6. Session
+   1. Session 是应用程序与数据库之间交互操作的一个单线程对象，是 Hibernate 运作的中心，所有持久化对象必须在 session 的管理下才可以进行持久化操作
+   2. Session相当于 JDBC 中的 Connection。 Session对象有一个一级缓存，显式执行 flush 之前，所有的持久层操作的数据都缓存在 session 对象处
+   3. 取得持久化对象的方法： get() load()
+   4. 持久化对象都得保存，更新和删除：save(),update(),saveOrUpdate(),delete()
+   5. 开启事务: beginTransaction().
+   6. 管理 Session 的方法：isOpen(),flush(), clear(), evict(), close()等
+
+7. SessionFactory
+   1. Configuration对象根据当前的配置信息生成 SessionFactory 对象。
+   2. SessionFactory对象中缓存了当前的数据库配置信息和所有映射关系以及预定义的SQL语句。
+   3. SessionFactory还负责维护Hibernate的二级缓存
+   4. SessionFactory对象在应用初始化时被创建，是一个重量级的类，构造时很消耗资源。通常情况下，整个应用只有唯一的一个SessionFactory对象
+   5. 使用Hibernate访问多个数据库，需要对每一个数据库使用一个SessionFactory对象
+   6. 应用程序从SessionFactory对象中获得Session(会话)实例
+
+
+8. Tansaction
+   1. Transaction从底层的事务实现中抽象出来的接口
+   2. 可能是一个JDBC事务或一个JTA事务，这有助于保持Hibernate应用在不同类型的执行环境或容器中的可移植性
+   3. 使用Hibernate进行操作时必须显示的调用Transaction:Transaction tx =session.beginTransaction();
+   4. 常用方法:
+      1. commit():提交相关联的session实例
+      2. rollback():撤销事务操作
+      3. wasCommitted():检查事务是否提交
+
+9. Query接口
+   1. 使用Query类型的对象可以方便我们对数据库数据进行查询，它使用QBC、QBE、HQL或者原生SQL（Native SQL）对数据执行查询操作
+   2. 代码
+
+        ```java
+        Configuration config = new Configuration().configure();
+        SessionFactory sessionFactory = config.buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        Query query = session.createQuery("from Guestbook");
+        List list = query.list();
+        tx.commit();
+
+        ```
+
+10. Criteria
+    1. Criteria接口与Query接口非常类似，它允许我们创建并执行面向对象方式的查询
+    2. 代码
+
+        ```java
+        Configuration config = new Configuration().configure();
+        SessionFactory sessionFactory = config.buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+        Criteria crit = session.createCriteria(Guestbook.class);
+        Criterion criterion1 = Restrictions.like("name", "刘%");
+        crit.add(criterion1);
+        List list = crit.list();
+        tx.commit();
+        ```
+
+11. 对象状态
+    1.`瞬时`(transient)：数据库中没有数据与之对应，超过作用域会被JVM垃圾回收器回收，一般是new出来且与session没有关联的对象。
+    2. `持久`(persistent)：数据库中有数据与之对应，当前与session有关联，并且相关联的session没有关闭，事务没有提交；持久对象状态发生改变，在事务提交时会影响到数据库(hibernate能检测到)。
+    3. `脱管`(detached)：数据库中有数据与之对应，但当前没有session与之关联；托管对象状态发生改变，hibernate不能检测到。
+
+12. generator
+    1. Increment：自动增长
+    2. Identity：由底层数据库生成标识符
+    3. native：适用于代理主键。根据底层数据库对自动生成表示符的能力来选择identity、sequence、hilo
+    4. assigned:(默认)适用于自然主键。由java程序负责生成标识符。不能把setID()方法声明为Private的。尽量避免使用自然主键。
+
+13. 映射复合主键
+
+    ```xml
+    <composite-id>
+        <key-property name="first-name" column="firstname" type="string">
+        <key-property name="last-name" column="lastname" type="string">
+    </composite-id>
+
+    ```
+
+14. 关联关系映射
+    1. 单向关联
+       1. 一对多
+          1. \<set> 元素来映射持久化类的set类型的属性
+             1. name:设定待映射持久化类的属性名。\
+             2. order-by: 当 Hibernate 通过 select 语句到数据库中检索集合对象时, 利用 order by 子句进行排序
+             3. key子属性:设定与所关联的持久化类对应的表的外键,column: 指定关联表的外键名
+             4. one-to-many子属性:设定所关联的持久化类(集合中存放的对象),class: 指定关联的持久化类的类名
+
+       2. 一对一
+       3. 多对多
+       4. 多对一：\<many-to-one>
+          1. `name`：指定关联属性的属性名，该属性是必须的
+          2. `column`:指定关联的外键列列名，默认与关联属性同名
+          3. `update`，insert：用于指定对应的字段是否包含在用于UPDATE、INSERT的语句中
+          4. 代码示意:![hi1](img/hi1.png)
+
+    2. 多向关联
+       1. 一对一
+       2. 一对多
+       3. 多对多
+
+15. HQL语法(见书p167)
